@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-inference-lab"
+version = "0.1.0"
+description = "Endpoint registry, inference benchmarking, and leaderboard tooling for OpenAI-compatible LLM servers."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "LLM Inference Lab" }]
+dependencies = [
+    "httpx>=0.27",
+    "fastapi>=0.109",
+    "uvicorn>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+illab-mock = "llm_inference_lab.cli:main_mock"
+illab-registry = "llm_inference_lab.cli:main_registry"
+illab-bench = "llm_inference_lab.cli:main_bench"
+illab-import-history = "llm_inference_lab.cli:main_import_history"
+illab-leaderboard = "llm_inference_lab.cli:main_leaderboard"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

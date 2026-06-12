@@ -1,0 +1,45 @@
+{
+  "base_url": "http://127.0.0.1:8089/v1",
+  "model": "qwopus35",
+  "concurrency_levels": [1, 4],
+  "rounds": [
+    {
+      "concurrency": 1,
+      "requests_per_worker": 2,
+      "total_requests": 2,
+      "success_count": 2,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "wall_s": 2.0,
+      "qps": 1.0,
+      "aggregate_tps": 59.3,
+      "avg_request_tps": 59.3,
+      "avg_latency_s": 1.0,
+      "p50_latency_s": 1.0,
+      "p95_latency_s": 1.1,
+      "max_latency_s": 1.1,
+      "total_prompt_tokens": 100,
+      "total_completion_tokens": 118,
+      "failures": []
+    },
+    {
+      "concurrency": 4,
+      "requests_per_worker": 2,
+      "total_requests": 8,
+      "success_count": 8,
+      "failure_count": 0,
+      "success_rate": 1.0,
+      "wall_s": 4.0,
+      "qps": 2.0,
+      "aggregate_tps": 172.1,
+      "avg_request_tps": 43.8,
+      "avg_latency_s": 3.75,
+      "p50_latency_s": 3.75,
+      "p95_latency_s": 3.9,
+      "max_latency_s": 4.0,
+      "total_prompt_tokens": 400,
+      "total_completion_tokens": 688,
+      "failures": []
+    }
+  ]
+}

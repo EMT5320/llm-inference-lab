@@ -1,0 +1,78 @@
+{
+  "schema_version": "endpoint-registry-v0.1",
+  "description": "MVP endpoint registry for inference benchmarking (baseline / SFT / DPO / frontier + mock).",
+  "endpoints": [
+    {
+      "endpoint_id": "mock_local",
+      "label": "Mock local endpoint",
+      "type": "mock",
+      "model": "mock-model",
+      "base_url": "http://127.0.0.1:18080/v1",
+      "enabled": true,
+      "notes": "CPU smoke endpoint started via illab-mock."
+    },
+    {
+      "endpoint_id": "base_7b",
+      "label": "Base Qwen2.5-Coder-7B",
+      "type": "vllm",
+      "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_env": "ILL_BASE_7B_MODEL",
+      "base_url_env": "ILL_BASE_7B_BASE_URL",
+      "api_key_env": "ILL_BASE_7B_API_KEY",
+      "requires_api_key": false,
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "notes": "Baseline 7B served via vLLM OpenAI-compatible API."
+    },
+    {
+      "endpoint_id": "coach_sft_7b",
+      "label": "Coach SFT 7B",
+      "type": "vllm",
+      "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_env": "ILL_SFT_7B_MODEL",
+      "adapter": "training/runs/coach_sft_7b/adapter",
+      "base_url_env": "ILL_SFT_7B_BASE_URL",
+      "api_key_env": "ILL_SFT_7B_API_KEY",
+      "requires_api_key": false,
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "notes": "SFT adapter endpoint; adapter path is informational for readiness checks."
+    },
+    {
+      "endpoint_id": "coach_dpo_7b",
+      "label": "Coach DPO 7B",
+      "type": "vllm",
+      "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_env": "ILL_DPO_7B_MODEL",
+      "adapter": "training/runs/coach_dpo_7b/adapter",
+      "base_url_env": "ILL_DPO_7B_BASE_URL",
+      "api_key_env": "ILL_DPO_7B_API_KEY",
+      "requires_api_key": false,
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "notes": "DPO adapter endpoint."
+    },
+    {
+      "endpoint_id": "frontier_teacher",
+      "label": "Frontier teacher (local 27B)",
+      "type": "openai_compatible",
+      "model": "Qwen3.6-27B",
+      "model_env": "ILL_FRONTIER_MODEL",
+      "base_url_env": "ILL_FRONTIER_BASE_URL",
+      "api_key_env": "ILL_FRONTIER_API_KEY",
+      "requires_api_key": false,
+      "extra_body": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "notes": "Frontier reference model on multi-GPU vLLM/SGLang."
+    }
+  ]
+}
