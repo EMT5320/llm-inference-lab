@@ -195,6 +195,7 @@
   ],
   "provenance": {
     "importer": "illab-import-history",
-    "source_path": "D:\\workspace\\research\\llm-inference-lab\\..\\leetcode_agent_assistant\\.run\\job\\gemma4_perf_reference.md"
+    "source_path": "external:gemma4_perf_reference.md",
+    "source_note": "Imported from a local historical A10/vLLM performance note; raw local path intentionally omitted for public release."
   }
 }

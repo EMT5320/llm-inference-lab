@@ -2,7 +2,7 @@
 
 Endpoint registry, OpenAI-compatible inference benchmarking, historical A10/vLLM result import, and Markdown leaderboard export.
 
-Infra companion to [AlgoCoach-Flywheel](https://github.com/example/algocoach-flywheel) — this repo focuses on **serving pressure tests**, not coaching eval orchestration.
+Infra companion to AlgoCoach-Flywheel (sibling repo `leetcode_agent_assistant`) — this repo focuses on **serving pressure tests**, not coaching eval orchestration.
 
 ## What
 
@@ -14,7 +14,7 @@ Infra companion to [AlgoCoach-Flywheel](https://github.com/example/algocoach-fly
 ## Install
 
 ```powershell
-cd d:\workspace\research\llm-inference-lab
+cd <repo>
 python -m venv .venv
 .\.venv\Scripts\pip install -e ".[dev]"
 ```
@@ -96,3 +96,7 @@ Field layout mirrors AlgoCoach `config/endpoint_registry.phase_b.json` but uses 
 pytest -q
 python -m compileall -q src tests
 ```
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).

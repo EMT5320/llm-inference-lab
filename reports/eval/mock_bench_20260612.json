@@ -85,5 +85,5 @@
     "timestamp_utc": "2026-06-12T09:21:43.350594+00:00",
     "git_sha": null
   },
-  "details_path": "D:\\workspace\\research\\llm-inference-lab\\.run\\bench\\20260612T092036Z-b313dfb6\\details.jsonl"
+  "details_path": ".run/bench/20260612T092036Z-b313dfb6/details.jsonl"
 }
