@@ -2,6 +2,7 @@
   "schema_version": "history-record-v0.1",
   "bench_schema_version": "bench-run-v0.1",
   "source": "history",
+  "evidence_class": "historical/imported",
   "source_file": "gemma4_perf_reference.md",
   "endpoint_id": "gemma4_a10",
   "model": "google/gemma-4-26B-A4B-it",

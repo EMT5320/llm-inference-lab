@@ -12,6 +12,7 @@ FIXTURE = Path(__file__).resolve().parent / "fixtures" / "qwopus_bench.sample.js
 def test_import_qwopus_json_normalizes_rounds() -> None:
     payload = import_qwopus_json(FIXTURE)
     assert payload["model"] == "qwopus35"
+    assert payload["evidence_class"] == "historical/imported"
     assert len(payload["rounds"]) == 2
     assert payload["rounds"][0]["concurrency"] == 1
     assert payload["rounds"][1]["aggregate_tps"] == 172.1

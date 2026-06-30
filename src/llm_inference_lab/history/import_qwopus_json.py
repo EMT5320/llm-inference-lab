@@ -22,6 +22,7 @@ def import_qwopus_json(path: Path) -> dict[str, Any]:
         "schema_version": HISTORY_RECORD_SCHEMA_VERSION,
         "bench_schema_version": BENCH_RUN_SCHEMA_VERSION,
         "source": "history",
+        "evidence_class": "historical/imported",
         "source_file": path.name,
         "endpoint_id": "qwopus35_a10",
         "model": str(payload.get("model") or "qwopus35"),

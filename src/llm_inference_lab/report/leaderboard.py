@@ -6,6 +6,10 @@ import json
 from pathlib import Path
 from typing import Any
 
+HISTORICAL_IMPORTED = "historical/imported"
+LIVE_RERUN = "live/rerun"
+PENDING_OWNER_RERUN = "pending/owner-rerun"
+
 
 def load_records(paths: list[Path]) -> list[dict[str, Any]]:
     """Load benchmark or history JSON records."""
@@ -22,16 +26,17 @@ def collect_leaderboard_rows(records: list[dict[str, Any]]) -> list[dict[str, An
     rows: list[dict[str, Any]] = []
     for record in records:
         model = str(record.get("model") or "unknown")
-        source = str(record.get("source") or "live")
+        evidence_class = _evidence_class(record)
         endpoint_id = str(record.get("endpoint_id") or "unknown")
         test_date = record.get("test_date") or record.get("provenance", {}).get("timestamp_utc", "n/a")
         notes = str(record.get("notes") or "")
+        hardware = _hardware_label(record)
         for round_row in record.get("rounds") or []:
             rows.append(
                 {
                     "model": model,
                     "endpoint_id": endpoint_id,
-                    "source": source,
+                    "evidence_class": evidence_class,
                     "test_date": test_date,
                     "concurrency": round_row.get("concurrency"),
                     "aggregate_tps": round_row.get("aggregate_tps"),
@@ -40,6 +45,8 @@ def collect_leaderboard_rows(records: list[dict[str, Any]]) -> list[dict[str, An
                     "p95_latency_s": round_row.get("p95_latency_s"),
                     "p50_ttft_ms": round_row.get("p50_ttft_ms"),
                     "p95_ttft_ms": round_row.get("p95_ttft_ms"),
+                    "success_rate": round_row.get("success_rate"),
+                    "hardware": hardware,
                     "notes": notes,
                 }
             )
@@ -53,25 +60,32 @@ def render_leaderboard(records: list[dict[str, Any]], *, pending_models: list[st
     lines = [
         "# Inference Leaderboard",
         "",
-        "| model | source | concurrency | agg_tps | qps | p50_lat | p95_lat | p50_ttft | notes |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---|",
+        "- Claim boundary: `historical/imported` rows come from imported artifacts; `live/rerun` rows come from current `illab-bench` reruns; `pending/owner-rerun` rows carry no numeric claim.",
+        "- Four-axis scope: throughput (`agg_tps`, `qps`), latency (`p50/p95`, `TTFT`), memory/hardware (`hardware/telemetry`), and concurrency success (`success_rate`).",
+        "",
+        "| model | evidence | concurrency | agg_tps | qps | p50_lat | p95_lat | p50_ttft | success | hardware/telemetry | notes |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|",
     ]
     for row in rows:
         lines.append(
-            "| {model} | {source} | {concurrency} | {agg} | {qps} | {p50} | {p95} | {ttft} | {notes} |".format(
+            "| {model} | {evidence} | {concurrency} | {agg} | {qps} | {p50} | {p95} | {ttft} | {success} | {hardware} | {notes} |".format(
                 model=row["model"],
-                source=_format_source(row),
+                evidence=_format_evidence(row),
                 concurrency=row.get("concurrency", "n/a"),
                 agg=_fmt_num(row.get("aggregate_tps")),
                 qps=_fmt_num(row.get("qps")),
                 p50=_fmt_latency(row.get("p50_latency_s")),
                 p95=_fmt_latency(row.get("p95_latency_s")),
                 ttft=_fmt_ms(row.get("p50_ttft_ms")),
+                success=_fmt_pct(row.get("success_rate")),
+                hardware=(row.get("hardware") or PENDING_OWNER_RERUN)[:80],
                 notes=(row.get("notes") or "")[:80],
             )
         )
     for model in pending_models or []:
-        lines.append(f"| {model} | pending | n/a | n/a | n/a | n/a | n/a | n/a | run illab-bench when GPU ready |")
+        lines.append(
+            f"| {model} | {PENDING_OWNER_RERUN} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | {PENDING_OWNER_RERUN} | owner rerun required; no numeric claim |"
+        )
     lines.append("")
     return "\n".join(lines)
 
@@ -93,18 +107,61 @@ def discover_json_files(*paths: Path) -> list[Path]:
     return files
 
 
-def _format_source(row: dict[str, Any]) -> str:
-    source = str(row.get("source") or "live")
+def _format_evidence(row: dict[str, Any]) -> str:
+    evidence_class = str(row.get("evidence_class") or LIVE_RERUN)
     test_date = row.get("test_date")
-    if source == "history" and test_date:
-        return f"history/{test_date}"
-    return source
+    if evidence_class == HISTORICAL_IMPORTED and test_date:
+        return f"{HISTORICAL_IMPORTED}/{test_date}"
+    return evidence_class
+
+
+def _evidence_class(record: dict[str, Any]) -> str:
+    evidence_class = str(record.get("evidence_class") or "").strip().lower()
+    if evidence_class in {HISTORICAL_IMPORTED, LIVE_RERUN, PENDING_OWNER_RERUN}:
+        return evidence_class
+
+    source = str(record.get("source") or "live").strip().lower()
+    if source in {"history", "historical", "imported"}:
+        return HISTORICAL_IMPORTED
+    if source == "pending":
+        return PENDING_OWNER_RERUN
+    return LIVE_RERUN
+
+
+def _hardware_label(record: dict[str, Any]) -> str:
+    hardware = record.get("hardware") or record.get("hardware_profile")
+    telemetry = record.get("gpu_telemetry") or record.get("telemetry") or {}
+    telemetry_status = ""
+    if isinstance(telemetry, dict):
+        telemetry_status = str(telemetry.get("status") or "").strip()
+    elif telemetry:
+        telemetry_status = str(telemetry)
+
+    if hardware:
+        label = str(hardware)
+        if telemetry_status:
+            return f"{label}; telemetry {telemetry_status}"
+        if _evidence_class(record) == HISTORICAL_IMPORTED:
+            return f"{label}; imported"
+        return label
+    if str(record.get("endpoint_id") or "") == "mock_local" or str(record.get("model") or "") == "mock-model":
+        return "CPU mock; no GPU telemetry"
+    return PENDING_OWNER_RERUN
 
 
 def _fmt_num(value: Any) -> str:
     if value is None:
         return "n/a"
     return f"{float(value):.1f}"
+
+
+def _fmt_pct(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    number = float(value)
+    if number <= 1.0:
+        number *= 100.0
+    return f"{number:.0f}%"
 
 
 def _fmt_latency(value: Any) -> str:

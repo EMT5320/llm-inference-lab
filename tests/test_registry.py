@@ -15,6 +15,7 @@ def test_registry_loads_and_has_mvp_endpoints() -> None:
     registry = load_endpoint_registry(REGISTRY)
     ids = {item["endpoint_id"] for item in registry["endpoints"]}
     assert {"mock_local", "base_7b", "coach_sft_7b", "coach_dpo_7b", "frontier_teacher"}.issubset(ids)
+    assert {"vllm_7b_a10_template", "vllm_14b_a10_template", "vllm_26b_moe_a10_template"}.issubset(ids)
 
 
 def test_mock_endpoint_is_ready() -> None:

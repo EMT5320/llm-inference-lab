@@ -12,6 +12,72 @@
       "notes": "CPU smoke endpoint started via illab-mock."
     },
     {
+      "endpoint_id": "vllm_7b_a10_template",
+      "label": "vLLM 7B A10 owner-rerun template",
+      "type": "vllm",
+      "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+      "model_env": "ILL_VLLM_7B_MODEL",
+      "base_url_env": "ILL_VLLM_7B_BASE_URL",
+      "api_key_env": "ILL_VLLM_7B_API_KEY",
+      "requires_api_key": false,
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "hardware": "pending/owner-rerun",
+      "recipe": {
+        "port": 18087,
+        "tensor_parallel_size": 1,
+        "gpu_memory_utilization": 0.9,
+        "max_model_len": 32768,
+        "benchmark_concurrency": "1,4,8,16"
+      },
+      "notes": "Template only; attach live A10 telemetry during owner rerun."
+    },
+    {
+      "endpoint_id": "vllm_14b_a10_template",
+      "label": "vLLM 14B A10 owner-rerun template",
+      "type": "vllm",
+      "model": "Qwen/Qwen2.5-14B-Instruct",
+      "model_env": "ILL_VLLM_14B_MODEL",
+      "base_url_env": "ILL_VLLM_14B_BASE_URL",
+      "api_key_env": "ILL_VLLM_14B_API_KEY",
+      "requires_api_key": false,
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "hardware": "pending/owner-rerun",
+      "recipe": {
+        "port": 18088,
+        "tensor_parallel_size": 2,
+        "gpu_memory_utilization": 0.9,
+        "max_model_len": 32768,
+        "benchmark_concurrency": "1,4,8,16"
+      },
+      "notes": "Template only; adjust tensor parallel size to actual A10 availability."
+    },
+    {
+      "endpoint_id": "vllm_26b_moe_a10_template",
+      "label": "vLLM 26B MoE A10 owner-rerun template",
+      "type": "vllm",
+      "model": "google/gemma-4-26B-A4B-it",
+      "model_env": "ILL_VLLM_26B_MOE_MODEL",
+      "base_url_env": "ILL_VLLM_26B_MOE_BASE_URL",
+      "api_key_env": "ILL_VLLM_26B_MOE_API_KEY",
+      "requires_api_key": false,
+      "max_tokens": 256,
+      "temperature": 0.0,
+      "enabled": true,
+      "hardware": "pending/owner-rerun",
+      "recipe": {
+        "port": 18089,
+        "tensor_parallel_size": 4,
+        "gpu_memory_utilization": 0.9,
+        "max_model_len": 65536,
+        "benchmark_concurrency": "1,2,4,8,16"
+      },
+      "notes": "Template only; intended to rerun and separate from imported Gemma4 history."
+    },
+    {
       "endpoint_id": "base_7b",
       "label": "Base Qwen2.5-Coder-7B",
       "type": "vllm",

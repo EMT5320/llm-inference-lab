@@ -50,6 +50,7 @@ def import_gemma4_markdown(path: Path) -> dict[str, Any]:
         "schema_version": HISTORY_RECORD_SCHEMA_VERSION,
         "bench_schema_version": BENCH_RUN_SCHEMA_VERSION,
         "source": "history",
+        "evidence_class": "historical/imported",
         "source_file": path.name,
         "endpoint_id": "gemma4_a10",
         "model": "google/gemma-4-26B-A4B-it",

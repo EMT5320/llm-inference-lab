@@ -88,9 +88,15 @@ async def run_benchmark(
         "schema_version": BENCH_RUN_SCHEMA_VERSION,
         "run_id": run_id,
         "source": "live",
+        "evidence_class": "live/rerun",
         "endpoint_id": endpoint_id,
         "model": model,
         "base_url": base_url,
+        "hardware": _default_hardware_label(endpoint_id, model),
+        "gpu_telemetry": {
+            "status": "pending/owner-rerun",
+            "note": "Run scripts/sample_nvidia_smi.py during the owner GPU rerun to attach live telemetry.",
+        },
         "prompt": prompt,
         "max_tokens": max_tokens,
         "temperature": temperature,
@@ -192,6 +198,12 @@ def _append_details(path: Path, results: list[dict[str, Any]]) -> None:
     with path.open("a", encoding="utf-8") as handle:
         for item in results:
             handle.write(json.dumps(item, ensure_ascii=False) + "\n")
+
+
+def _default_hardware_label(endpoint_id: str, model: str) -> str:
+    if endpoint_id == "mock_local" or model == "mock-model":
+        return "CPU mock; no GPU telemetry"
+    return "pending/owner-rerun"
 
 
 def _git_sha() -> str | None:
