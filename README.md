@@ -1,10 +1,10 @@
 # LLM Inference Lab
 
-Endpoint registry, OpenAI-compatible inference benchmarking, historical A10/vLLM result import, and Markdown leaderboard export.
+Benchmark OpenAI-compatible LLM endpoints for throughput and latency: an endpoint registry, a concurrent benchmark runner (QPS, aggregate TPS, P50/P95, TTFT), historical A10/vLLM result import, and a Markdown leaderboard export.
 
-Infra companion to AlgoCoach-Flywheel (sibling repo `leetcode_agent_assistant`) — this repo focuses on **serving pressure tests**, not coaching eval orchestration.
+**Headline result:** archived Gemma4 26B-A4B on 4×A10 reached a peak aggregate throughput of **343.7 tok/s** at concurrency 16 (`historical/imported`; see [Key results](#key-results-from-archived-a10-runs)). A CPU mock server validates the runner end-to-end with no GPU dependency.
 
-Portfolio scope: this repo is adjacent evidence for model serving, cost/latency tradeoffs, and endpoint selection inside Agent / evaluation systems. It is not positioned as a standalone AI Infra platform, scheduler, Kubernetes stack, monitoring dashboard, or production serving product.
+Infra companion to AlgoCoach-Flywheel (sibling repo `leetcode_agent_assistant`), focused on **serving pressure tests**. Scope boundary: this repo is adjacent evidence for model serving, cost/latency tradeoffs, and endpoint selection inside Agent / evaluation systems. It is not a coaching eval orchestrator, standalone AI Infra platform, scheduler, Kubernetes stack, monitoring dashboard, or production serving product.
 
 ## What
 
@@ -33,11 +33,14 @@ illab-mock --port 18080
 Terminal 2:
 
 ```powershell
-illab-import-history --gemma4-md ..\leetcode_agent_assistant\.run\job\gemma4_perf_reference.md
+New-Item -ItemType Directory -Force -Path .run\bench\demo\history | Out-Null
+illab-import-history --gemma4-md tests\fixtures\gemma4_perf_reference.sample.md `
+  --output-dir .run\bench\demo\history
 illab-bench --registry config/endpoints.example.json --endpoint mock_local `
   --concurrency 1,4,8 --requests-per-worker 5 --max-tokens 64 `
-  --output reports/eval/mock_bench_20260612.json
-illab-leaderboard --output reports/eval/inference_leaderboard_20260612.md
+  --output .run\bench\demo\mock_bench_20260704.json
+illab-leaderboard --history .run\bench\demo\history --runs .run\bench\demo `
+  --output .run\bench\demo\inference_leaderboard_20260704.md
 pytest -q
 ```
 
@@ -45,14 +48,16 @@ Or run the bundled demo:
 
 ```powershell
 .\scripts\demo_mock_bench.ps1
+# In offline/dev shells with dependencies already installed:
+.\scripts\demo_mock_bench.ps1 -UseCurrentPython
 ```
 
 ## Key results (from archived A10 runs)
 
-Historical Gemma4 26B-A4B on 4×A10 (imported from `gemma4_perf_reference.md`):
+Historical Gemma4 26B-A4B on 4×A10 (imported from the bundled `tests/fixtures/gemma4_perf_reference.sample.md` excerpt; full run archived by owner):
 
 - Peak aggregate throughput: **343.7 tok/s** at concurrency 16
-- Single-request TPS: ~63–65 tok/s; TTFT ~25–30ms
+- Single-request TPS: ~60 tok/s in the bundled excerpt; TTFT ~25–30ms
 
 Live mock runs validate the runner on CPU without GPU dependencies.
 
