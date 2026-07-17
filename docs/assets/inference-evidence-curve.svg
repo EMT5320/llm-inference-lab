@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">LLM Inference Lab historical evidence curve</title>
+  <desc id="desc">Historical imported Gemma 4xA10 throughput by concurrency with explicit evidence-class and provenance boundaries.</desc>
+  <rect width="1200" height="620" fill="#f4f1e8"/>
+  <text x="54" y="50" fill="#245b64" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="2">LLM INFERENCE LAB / EVIDENCE-CLASS BENCHMARK</text>
+  <text x="54" y="82" fill="#182126" font-family="ui-sans-serif, system-ui, sans-serif" font-size="25" font-weight="700">Concurrency pressure is measured; provenance stays attached</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="54" y="132" fill="#182126" font-size="15" font-weight="700">Gemma4 26B-A4B · 4×A10-22GB</text>
+    <text x="474" y="132" fill="#8b4c34" font-family="ui-monospace, monospace" font-size="12">HISTORICAL / IMPORTED · 2026-04-13</text>
+
+    <line x1="90" y1="450" x2="720" y2="450" stroke="#716a60"/>
+    <line x1="90" y1="170" x2="90" y2="450" stroke="#716a60"/>
+    <line x1="90" y1="380" x2="720" y2="380" stroke="#d0c8b9"/>
+    <line x1="90" y1="310" x2="720" y2="310" stroke="#d0c8b9"/>
+    <line x1="90" y1="240" x2="720" y2="240" stroke="#d0c8b9"/>
+    <line x1="90" y1="170" x2="720" y2="170" stroke="#d0c8b9"/>
+
+    <text x="76" y="454" fill="#5f5a51" font-size="12" text-anchor="end">0</text>
+    <text x="76" y="384" fill="#5f5a51" font-size="12" text-anchor="end">100</text>
+    <text x="76" y="314" fill="#5f5a51" font-size="12" text-anchor="end">200</text>
+    <text x="76" y="244" fill="#5f5a51" font-size="12" text-anchor="end">300</text>
+    <text x="76" y="174" fill="#5f5a51" font-size="12" text-anchor="end">400</text>
+    <text x="28" y="316" fill="#5f5a51" font-size="12" transform="rotate(-90 28 316)">aggregate tok/s</text>
+
+    <path d="M130 408.5L260 379.2L390 329.5L520 267.2L680 209.4" fill="none" stroke="#245b64" stroke-width="4"/>
+    <g fill="#f4f1e8" stroke="#245b64" stroke-width="4">
+      <circle cx="130" cy="408.5" r="7"/><circle cx="260" cy="379.2" r="7"/><circle cx="390" cy="329.5" r="7"/><circle cx="520" cy="267.2" r="7"/><circle cx="680" cy="209.4" r="7"/>
+    </g>
+    <g fill="#182126" font-size="13" font-weight="700" text-anchor="middle">
+      <text x="130" y="392">59.3</text><text x="260" y="363">101.2</text><text x="390" y="313">172.1</text><text x="520" y="251">261.1</text><text x="680" y="193">343.7</text>
+    </g>
+    <g fill="#5f5a51" font-size="12" text-anchor="middle">
+      <text x="130" y="474">c=1</text><text x="260" y="474">c=2</text><text x="390" y="474">c=4</text><text x="520" y="474">c=8</text><text x="680" y="474">c=16</text>
+    </g>
+
+    <rect x="790" y="150" width="358" height="330" fill="#fffdf8" stroke="#716a60"/>
+    <text x="814" y="180" fill="#245b64" font-family="ui-monospace, monospace" font-size="12">EVIDENCE LEDGER</text>
+    <text x="814" y="219" fill="#182126" font-size="17" font-weight="700">historical / imported</text>
+    <text x="814" y="244" fill="#5f5a51" font-size="13">Retained artifact; not a current rerun</text>
+    <line x1="814" y1="264" x2="1124" y2="264" stroke="#d0c8b9"/>
+    <text x="814" y="302" fill="#182126" font-size="17" font-weight="700">live / rerun</text>
+    <text x="814" y="327" fill="#5f5a51" font-size="13">Current runner + endpoint evidence</text>
+    <line x1="814" y1="347" x2="1124" y2="347" stroke="#d0c8b9"/>
+    <text x="814" y="385" fill="#182126" font-size="17" font-weight="700">pending / owner-rerun</text>
+    <text x="814" y="410" fill="#5f5a51" font-size="13">Template only; carries no numeric claim</text>
+    <text x="814" y="450" fill="#8b4c34" font-size="13" font-weight="700">CPU mock validates the runner,</text>
+    <text x="814" y="470" fill="#8b4c34" font-size="13" font-weight="700">not model-serving performance.</text>
+  </g>
+
+  <text x="54" y="540" fill="#182126" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">QPS · aggregate TPS · P50/P95 · TTFT · success rate · hardware / telemetry</text>
+  <text x="54" y="572" fill="#5f5a51" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Source: data/history/gemma4_a10_20260413.json · leaderboard keeps evidence classes separate</text>
+</svg>

@@ -1,18 +1,42 @@
 # LLM Inference Lab
 
-Benchmark OpenAI-compatible LLM endpoints for throughput and latency: an endpoint registry, a concurrent benchmark runner (QPS, aggregate TPS, P50/P95, TTFT), historical A10/vLLM result import, and a Markdown leaderboard export.
+> **Benchmark OpenAI-compatible endpoints across throughput, latency, concurrency success, and hardware evidence — without mixing historical imports, live reruns, and pending templates.**
 
-**Headline result:** archived Gemma4 26B-A4B on 4×A10 reached a peak aggregate throughput of **343.7 tok/s** at concurrency 16 (`historical/imported`; see [Key results](#key-results-from-archived-a10-runs)). A CPU mock server validates the runner end-to-end with no GPU dependency.
+LLM Inference Lab provides an endpoint registry, concurrent runner, streaming TTFT
+measurement, history importer, telemetry seam, and evidence-class leaderboard.
 
-Infra companion to AlgoCoach-Flywheel (sibling repo `leetcode_agent_assistant`), focused on **serving pressure tests**. Scope boundary: this repo is adjacent evidence for model serving, cost/latency tradeoffs, and endpoint selection inside Agent / evaluation systems. It is not a coaching eval orchestrator, standalone AI Infra platform, scheduler, Kubernetes stack, monitoring dashboard, or production serving product.
+[Run the CPU mock path](#quickstart-cpu-mock-smoke) ·
+[Open the retained leaderboard](reports/eval/inference_leaderboard_20260612.md) ·
+[Inspect the historical source](data/history/gemma4_a10_20260413.json) ·
+[Read the scope boundary](#limitations)
 
-## What
+<p align="center">
+  <img src="docs/assets/inference-evidence-curve.svg" alt="Historical imported Gemma 4xA10 throughput curve with explicit evidence-class boundaries" width="1100">
+</p>
 
-- Register baseline / SFT / DPO / frontier OpenAI-compatible endpoints
-- Run concurrent benchmarks (QPS, aggregate TPS, P50/P95 latency, TTFT via streaming)
-- Import archived Gemma4 A10 performance tables and legacy qwopus JSON
-- Export JSON + Markdown reports and a combined leaderboard
-- Keep `historical/imported`, `live/rerun`, and `pending/owner-rerun` rows separate so imported A10 numbers do not contaminate live rerun claims
+> **Provenance note:** the 343.7 tok/s peak is `historical/imported` evidence
+> from a retained Gemma4 26B-A4B 4×A10 artifact. The CPU mock validates the
+> benchmark runner contract; its throughput is not a model-serving claim.
+
+## Evidence ledger
+
+| Evidence class | Current receipt | Claim boundary |
+|---|---|---|
+| `historical/imported` | Gemma4 4×A10 · c=1/2/4/8/16 · peak 343.7 tok/s | retained artifact, not a current rerun |
+| `live/rerun` | CPU mock · QPS/TPS/P50/P95/TTFT runner contract | runner evidence only |
+| `pending/owner-rerun` | 7B / 14B / 26B-MoE endpoint templates | no numeric claim |
+
+## What you can inspect
+
+- Endpoint roles and environment bindings in `config/endpoints.example.json`.
+- Concurrent measurements for QPS, aggregate TPS, P50/P95, and streaming TTFT.
+- JSON provenance attached to historical imports and current runs.
+- Markdown leaderboard export that keeps evidence classes separate.
+- Optional GPU telemetry seam for an explicitly authorized owner rerun.
+
+This is adjacent LLMOps evidence for endpoint selection inside Agent/evaluation
+systems. It does not claim to be a scheduler, Kubernetes stack, monitoring
+dashboard, or production serving platform.
 
 ## Install
 
