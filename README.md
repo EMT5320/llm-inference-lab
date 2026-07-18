@@ -1,30 +1,35 @@
 # LLM Inference Lab
 
-> **Benchmark OpenAI-compatible endpoints across throughput, latency, concurrency success, and hardware evidence — without mixing historical imports, live reruns, and pending templates.**
+> **面向 OpenAI-compatible endpoint 的推理压测：吞吐、时延、并发成功率与硬件证据，全部按 evidence class 分账记录。**
+>
+> *Benchmark OpenAI-compatible endpoints across throughput, latency, concurrency success, and hardware evidence.*
 
-LLM Inference Lab provides an endpoint registry, concurrent runner, streaming TTFT
-measurement, history importer, telemetry seam, and evidence-class leaderboard.
+LLM Inference Lab 提供 endpoint registry、并发 runner、流式 TTFT 测量、
+历史数据导入、telemetry 接缝和 evidence-class 排行榜。
 
-[Run the CPU mock path](#quickstart-cpu-mock-smoke) ·
-[Open the retained leaderboard](reports/eval/inference_leaderboard_20260612.md) ·
-[Inspect the historical source](data/history/gemma4_a10_20260413.json) ·
-[Read the scope boundary](#limitations)
+*LLM Inference Lab provides an endpoint registry, concurrent runner, streaming TTFT
+measurement, history importer, telemetry seam, and evidence-class leaderboard.*
+
+[跑 CPU mock 路径](#quickstart-cpu-mock-smoke) ·
+[打开保留排行榜](reports/eval/inference_leaderboard_20260612.md) ·
+[查看历史来源](data/history/gemma4_a10_20260413.json) ·
+[阅读范围边界](#limitations)
 
 <p align="center">
   <img src="docs/assets/inference-evidence-curve.svg" alt="Historical imported Gemma 4xA10 throughput curve with explicit evidence-class boundaries" width="1100">
 </p>
 
-> **Provenance note:** the 343.7 tok/s peak is `historical/imported` evidence
-> from a retained Gemma4 26B-A4B 4×A10 artifact. The CPU mock validates the
-> benchmark runner contract; its throughput is not a model-serving claim.
-
-## Evidence ledger
+## Evidence ledger / 证据台账
 
 | Evidence class | Current receipt | Claim boundary |
 |---|---|---|
 | `historical/imported` | Gemma4 4×A10 · c=1/2/4/8/16 · peak 343.7 tok/s | retained artifact, not a current rerun |
 | `live/rerun` | CPU mock · QPS/TPS/P50/P95/TTFT runner contract | runner evidence only |
 | `pending/owner-rerun` | 7B / 14B / 26B-MoE endpoint templates | no numeric claim |
+
+> **Provenance note:** 343.7 tok/s 峰值是 `historical/imported` 证据，来自保留的
+> Gemma4 26B-A4B 4×A10 artifact。CPU mock 只验证压测 runner 契约，其吞吐不构成
+> 模型服务性能 claim。历史导入、实时复跑与待复跑模板严格分账。
 
 ## What you can inspect
 
@@ -34,9 +39,9 @@ measurement, history importer, telemetry seam, and evidence-class leaderboard.
 - Markdown leaderboard export that keeps evidence classes separate.
 - Optional GPU telemetry seam for an explicitly authorized owner rerun.
 
-This is adjacent LLMOps evidence for endpoint selection inside Agent/evaluation
-systems. It does not claim to be a scheduler, Kubernetes stack, monitoring
-dashboard, or production serving platform.
+这是 Agent/评测系统内 endpoint 选型的 LLMOps 邻接证据，覆盖注册、压测与
+evidence 分账。调度器、Kubernetes 栈、监控看板与生产 serving 平台的边界见
+[Limitations](#limitations)。
 
 ## Install
 
