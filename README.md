@@ -27,12 +27,9 @@ measurement, history importer, telemetry seam, and evidence-class leaderboard.*
 | `live/rerun` | CPU mock · QPS / usage TPS / P50/P90/P95 / TTFT | runner + metrics contract verification |
 | `pending/owner-rerun` | 7B / 14B / 26B-MoE endpoint templates | ready-to-run endpoint matrix |
 
-> **Provenance note:** 343.7 tok/s 峰值是 `historical/imported` 证据，来自保留的
-> Gemma4 26B-A4B 4×A10 artifact；CPU mock 提供 runner 与指标契约验证。历史导入、
-> 实时复跑与待复跑模板严格分账。
+> 343.7 tok/s 峰值是 `historical/imported` 证据，来自保留的 Gemma4 26B-A4B 4×A10 artifact；CPU mock 提供 runner 与指标契约验证。历史导入、实时复跑与待复跑模板严格分账。
 
-实时 token TPS 只在所有成功请求都返回服务端 `usage` 时生成；否则报告写 `n/a`，
-并用 `token_count_coverage` 显示覆盖率，不以文本空格或 SSE chunk 数冒充 token 数。
+实时 token TPS 只在所有成功请求都返回服务端 `usage` 时生成；否则报告写 `n/a`，并用 `token_count_coverage` 显示覆盖率。
 
 ## What you can inspect
 
@@ -86,7 +83,7 @@ Or run the bundled demo:
 
 ## Key results (from archived A10 runs)
 
-Historical Gemma4 26B-A4B on 4×A10 (imported from a retained owner benchmark note; the public JSON preserves the five-level summary and provenance, while the bundled fixture is only a parser-test excerpt):
+Historical Gemma4 26B-A4B on 4×A10 (imported from a retained owner benchmark note):
 
 - Peak aggregate throughput: **343.7 tok/s** at concurrency 16
 - Output-length sweep: **63.0–66.9 tok/s** with **23–30ms TTFT**; retained single-request scenarios span **39–92 tok/s**
