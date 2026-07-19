@@ -1,7 +1,7 @@
 # Inference Benchmark Report — mock_local
 
 - schema_version: `bench-run-v0.1`
-- run_id: `20260612T092036Z-b313dfb6`
+- run_id: `20260719T130920Z-0108620e`
 - source: `live`
 - evidence_class: `live/rerun`
 - model: `mock-model`
@@ -13,15 +13,15 @@
 
 | axis | fields | status |
 |---|---|---|
-| throughput | `qps`, `aggregate_tps` | measured per concurrency round |
-| latency | `p50_latency_s`, `p95_latency_s`, `p50/p95_ttft_ms` | measured per concurrency round |
-| memory/hardware | `hardware`, `gpu_telemetry` | CPU mock; no GPU telemetry |
+| throughput | `qps`, `aggregate_tps`, `token_count_coverage` | token TPS requires complete server usage |
+| latency | `p50/p90/p95_latency_s`, `p50/p95_ttft_ms` | measured per concurrency round |
+| memory/hardware | `hardware`, `gpu_telemetry` | CPU mock; no GPU telemetry; telemetry pending/owner-rerun |
 | concurrency success | `success_count`, `total_requests`, `success_rate` | measured per concurrency round |
 
 ## Rounds
 
-| concurrency | success | success_rate | qps | agg_tps | p50_lat | p95_lat | p50_ttft | p95_ttft |
-|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 | 5/5 | 100% | 0.28 | 59.69 | 3.64s | 3.64s | 274.8ms | 286.2ms |
-| 4 | 20/20 | 100% | 0.90 | 195.44 | 4.42s | 4.51s | 697.5ms | 1087.0ms |
-| 8 | 40/40 | 100% | 1.52 | 328.96 | 5.09s | 5.55s | 1075.3ms | 2024.4ms |
+| concurrency | success | success_rate | qps | agg_tps | token_usage | p50_lat | p90_lat | p95_lat | p50_ttft | p95_ttft |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 5/5 | 100% | 0.45 | 96.83 | 100% | 2.24s | 2.25s | 2.26s | 34.4ms | 38.5ms |
+| 4 | 20/20 | 100% | 1.77 | 383.24 | 100% | 2.26s | 2.29s | 2.29s | 38.8ms | 57.4ms |
+| 8 | 40/40 | 100% | 3.52 | 763.99 | 100% | 2.27s | 2.31s | 2.31s | 48.5ms | 77.7ms |
