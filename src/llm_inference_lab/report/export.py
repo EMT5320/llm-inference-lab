@@ -37,27 +37,29 @@ def render_bench_markdown(payload: dict[str, Any]) -> str:
         "",
         "| axis | fields | status |",
         "|---|---|---|",
-        "| throughput | `qps`, `aggregate_tps` | measured per concurrency round |",
-        "| latency | `p50_latency_s`, `p95_latency_s`, `p50/p95_ttft_ms` | measured per concurrency round |",
+        "| throughput | `qps`, `aggregate_tps`, `token_count_coverage` | token TPS requires complete server usage |",
+        "| latency | `p50/p90/p95_latency_s`, `p50/p95_ttft_ms` | measured per concurrency round |",
         f"| memory/hardware | `hardware`, `gpu_telemetry` | {hardware} |",
         "| concurrency success | `success_count`, `total_requests`, `success_rate` | measured per concurrency round |",
         "",
         "## Rounds",
         "",
-        "| concurrency | success | success_rate | qps | agg_tps | p50_lat | p95_lat | p50_ttft | p95_ttft |",
-        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| concurrency | success | success_rate | qps | agg_tps | token_usage | p50_lat | p90_lat | p95_lat | p50_ttft | p95_ttft |",
+        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in payload.get("rounds") or []:
         lines.append(
-            "| {concurrency} | {success}/{total} | {success_rate} | {qps:.2f} | {agg:.2f} | {p50:.2f}s | {p95:.2f}s | {ttft50} | {ttft95} |".format(
+            "| {concurrency} | {success}/{total} | {success_rate} | {qps} | {agg} | {token_usage} | {p50} | {p90} | {p95} | {ttft50} | {ttft95} |".format(
                 concurrency=row["concurrency"],
-                success=row["success_count"],
-                total=row["total_requests"],
+                success=_fmt_count(row.get("success_count")),
+                total=_fmt_count(row.get("total_requests")),
                 success_rate=_fmt_pct(row.get("success_rate")),
-                qps=float(row.get("qps") or 0.0),
-                agg=float(row.get("aggregate_tps") or 0.0),
-                p50=float(row.get("p50_latency_s") or 0.0),
-                p95=float(row.get("p95_latency_s") or 0.0),
+                qps=_fmt_num(row.get("qps")),
+                agg=_fmt_num(row.get("aggregate_tps")),
+                token_usage=_fmt_pct(row.get("token_count_coverage")),
+                p50=_fmt_seconds(row.get("p50_latency_s")),
+                p90=_fmt_seconds(row.get("p90_latency_s")),
+                p95=_fmt_seconds(row.get("p95_latency_s")),
                 ttft50=_fmt_ms(row.get("p50_ttft_ms")),
                 ttft95=_fmt_ms(row.get("p95_ttft_ms")),
             )
@@ -83,6 +85,24 @@ def _fmt_ms(value: Any) -> str:
     if value is None:
         return "n/a"
     return f"{float(value):.1f}ms"
+
+
+def _fmt_num(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    return f"{float(value):.2f}"
+
+
+def _fmt_seconds(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    return f"{float(value):.2f}s"
+
+
+def _fmt_count(value: Any) -> str:
+    if value is None:
+        return "n/a"
+    return str(int(value))
 
 
 def _fmt_pct(value: Any) -> str:

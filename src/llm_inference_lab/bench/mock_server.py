@@ -25,6 +25,7 @@ class ChatCompletionRequest(BaseModel):
     max_tokens: int = Field(default=64, ge=1, le=2048)
     temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     stream: bool = False
+    stream_options: dict[str, Any] | None = None
 
 
 def create_app(*, token_delay_ms: float = 8.0, startup_delay_ms: float = 20.0) -> FastAPI:
@@ -48,7 +49,13 @@ def create_app(*, token_delay_ms: float = 8.0, startup_delay_ms: float = 20.0) -
             raise HTTPException(status_code=400, detail="messages must not be empty")
         text = _mock_response(request.messages[-1].content, request.max_tokens)
         if request.stream:
-            return _stream_response(text, token_delay_ms=token_delay_ms, startup_delay_ms=startup_delay_ms)
+            include_usage = bool((request.stream_options or {}).get("include_usage"))
+            return _stream_response(
+                text,
+                token_delay_ms=token_delay_ms,
+                startup_delay_ms=startup_delay_ms,
+                include_usage=include_usage,
+            )
         await asyncio.sleep(startup_delay_ms / 1000.0)
         await asyncio.sleep(min(request.max_tokens, len(text.split())) * token_delay_ms / 1000.0)
         return _completion_payload(request.model or "mock-model", text)
@@ -91,7 +98,13 @@ def _completion_payload(model: str, text: str) -> dict[str, Any]:
     }
 
 
-def _stream_response(text: str, *, token_delay_ms: float, startup_delay_ms: float) -> Any:
+def _stream_response(
+    text: str,
+    *,
+    token_delay_ms: float,
+    startup_delay_ms: float,
+    include_usage: bool,
+) -> Any:
     from starlette.responses import StreamingResponse
 
     async def event_generator():
@@ -102,6 +115,17 @@ def _stream_response(text: str, *, token_delay_ms: float, startup_delay_ms: floa
             }
             yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
             await asyncio.sleep(token_delay_ms / 1000.0)
+        if include_usage:
+            completion_tokens = max(1, len(text.split()))
+            usage_payload = {
+                "choices": [],
+                "usage": {
+                    "prompt_tokens": 16,
+                    "completion_tokens": completion_tokens,
+                    "total_tokens": 16 + completion_tokens,
+                },
+            }
+            yield f"data: {json.dumps(usage_payload, ensure_ascii=False)}\n\n"
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")

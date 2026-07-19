@@ -25,18 +25,19 @@ def import_gemma4_markdown(path: Path) -> dict[str, Any]:
         rounds.append(
             {
                 "concurrency": int(row["concurrency"]),
-                "requests_per_worker": 20,
+                "requests_per_worker": None,
                 "total_requests": 20,
-                "success_count": 20,
-                "failure_count": 0,
-                "success_rate": 1.0,
+                "success_count": None,
+                "failure_count": None,
+                "success_rate": None,
                 "wall_s": None,
                 "qps": _parse_float(row.get("qps")),
                 "aggregate_tps": _parse_float(row.get("aggregate_tps")),
                 "avg_request_tps": _parse_float(row.get("avg_request_tps")),
                 "avg_latency_s": None,
                 "p50_latency_s": _parse_seconds(row.get("p50_latency")),
-                "p95_latency_s": _parse_seconds(row.get("p90_latency")),
+                "p90_latency_s": _parse_seconds(row.get("p90_latency")),
+                "p95_latency_s": None,
                 "max_latency_s": None,
                 "p50_ttft_ms": _parse_ms(row.get("p50_ttft")),
                 "p95_ttft_ms": None,
@@ -78,26 +79,15 @@ def write_gemma4_history(path: Path, output_path: Path) -> dict[str, Any]:
 
 
 def _parse_table_section(text: str, heading: str) -> list[dict[str, str]]:
-    start = text.find(heading)
-    if start < 0:
+    section = _extract_heading_section(text, heading)
+    if not section:
         return []
-    section = text[start:]
     lines = []
     for line in section.splitlines():
         if line.startswith("|") and not line.startswith("|---"):
             cells = [cell.strip() for cell in line.strip("|").split("|")]
             if len(cells) >= 2 and cells[0] not in {"场景", "max_tokens", "并发数"}:
                 lines.append(cells)
-    headers = {
-        "场景": "scenario",
-        "输出 tokens": "output_tokens",
-        "耗时": "latency",
-        "TTFT": "ttft",
-        "单请求 TPS": "tps",
-        "max_tokens": "max_tokens",
-        "实际输出": "actual_output",
-        "TPS": "tps",
-    }
     rows: list[dict[str, str]] = []
     for cells in lines:
         rows.append({"raw": " | ".join(cells)})
@@ -105,10 +95,9 @@ def _parse_table_section(text: str, heading: str) -> list[dict[str, str]]:
 
 
 def _parse_concurrency_section(text: str) -> list[dict[str, str]]:
-    start = text.find("4.3 并发吞吐")
-    if start < 0:
+    section = _extract_heading_section(text, "4.3 并发吞吐")
+    if not section:
         return []
-    section = text[start:]
     rows: list[dict[str, str]] = []
     for line in section.splitlines():
         if not line.startswith("|") or line.startswith("|---") or "并发数" in line:
@@ -128,6 +117,19 @@ def _parse_concurrency_section(text: str) -> list[dict[str, str]]:
             }
         )
     return rows
+
+
+def _extract_heading_section(text: str, heading: str) -> str:
+    """Return one Markdown heading body without leaking into later sections."""
+    start = text.find(heading)
+    if start < 0:
+        return ""
+    line_end = text.find("\n", start)
+    if line_end < 0:
+        return ""
+    section = text[line_end + 1 :]
+    next_heading = re.search(r"^#{1,6}\s+", section, flags=re.MULTILINE)
+    return section[: next_heading.start()] if next_heading else section
 
 
 def _parse_float(value: str | None) -> float | None:

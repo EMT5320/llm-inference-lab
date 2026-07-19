@@ -22,33 +22,6 @@
     },
     {
       "raw": "代码生成 | 252 tok | 2.73s | 71ms | 92 tok/s"
-    },
-    {
-      "raw": "64 | 44 tok | 0.66s | 66.9 tok/s | 26ms"
-    },
-    {
-      "raw": "256 | 168 tok | 2.59s | 64.9 tok/s | 23ms"
-    },
-    {
-      "raw": "512 | 327 tok | 5.19s | 63.0 tok/s | 30ms"
-    },
-    {
-      "raw": "1024 | 683 tok | 10.42s | 65.6 tok/s | 26ms"
-    },
-    {
-      "raw": "1 | 59.3 tok/s | 0.36 req/s | 2.70s | 2.71s | 28ms | 60.6 tok/s"
-    },
-    {
-      "raw": "2 | 101.2 tok/s | 0.61 req/s | 3.21s | 3.23s | 64ms | 51.4 tok/s"
-    },
-    {
-      "raw": "4 | 172.1 tok/s | 1.05 req/s | 3.75s | 3.78s | 99ms | 43.8 tok/s"
-    },
-    {
-      "raw": "8 | 261.1 tok/s | 1.61 req/s | 4.16s | 4.23s | 130ms | 39.7 tok/s"
-    },
-    {
-      "raw": "16 | **343.7 tok/s** | 2.12 req/s | 5.35s | 5.49s | 195ms | 32.7 tok/s"
     }
   ],
   "output_length_rows": [
@@ -63,21 +36,6 @@
     },
     {
       "raw": "1024 | 683 tok | 10.42s | 65.6 tok/s | 26ms"
-    },
-    {
-      "raw": "1 | 59.3 tok/s | 0.36 req/s | 2.70s | 2.71s | 28ms | 60.6 tok/s"
-    },
-    {
-      "raw": "2 | 101.2 tok/s | 0.61 req/s | 3.21s | 3.23s | 64ms | 51.4 tok/s"
-    },
-    {
-      "raw": "4 | 172.1 tok/s | 1.05 req/s | 3.75s | 3.78s | 99ms | 43.8 tok/s"
-    },
-    {
-      "raw": "8 | 261.1 tok/s | 1.61 req/s | 4.16s | 4.23s | 130ms | 39.7 tok/s"
-    },
-    {
-      "raw": "16 | **343.7 tok/s** | 2.12 req/s | 5.35s | 5.49s | 195ms | 32.7 tok/s"
     }
   ],
   "concurrency_levels": [
@@ -90,18 +48,19 @@
   "rounds": [
     {
       "concurrency": 1,
-      "requests_per_worker": 20,
+      "requests_per_worker": null,
       "total_requests": 20,
-      "success_count": 20,
-      "failure_count": 0,
-      "success_rate": 1.0,
+      "success_count": null,
+      "failure_count": null,
+      "success_rate": null,
       "wall_s": null,
       "qps": 0.36,
       "aggregate_tps": 59.3,
       "avg_request_tps": 60.6,
       "avg_latency_s": null,
       "p50_latency_s": 2.7,
-      "p95_latency_s": 2.71,
+      "p90_latency_s": 2.71,
+      "p95_latency_s": null,
       "max_latency_s": null,
       "p50_ttft_ms": 28.0,
       "p95_ttft_ms": null,
@@ -111,18 +70,19 @@
     },
     {
       "concurrency": 2,
-      "requests_per_worker": 20,
+      "requests_per_worker": null,
       "total_requests": 20,
-      "success_count": 20,
-      "failure_count": 0,
-      "success_rate": 1.0,
+      "success_count": null,
+      "failure_count": null,
+      "success_rate": null,
       "wall_s": null,
       "qps": 0.61,
       "aggregate_tps": 101.2,
       "avg_request_tps": 51.4,
       "avg_latency_s": null,
       "p50_latency_s": 3.21,
-      "p95_latency_s": 3.23,
+      "p90_latency_s": 3.23,
+      "p95_latency_s": null,
       "max_latency_s": null,
       "p50_ttft_ms": 64.0,
       "p95_ttft_ms": null,
@@ -132,18 +92,19 @@
     },
     {
       "concurrency": 4,
-      "requests_per_worker": 20,
+      "requests_per_worker": null,
       "total_requests": 20,
-      "success_count": 20,
-      "failure_count": 0,
-      "success_rate": 1.0,
+      "success_count": null,
+      "failure_count": null,
+      "success_rate": null,
       "wall_s": null,
       "qps": 1.05,
       "aggregate_tps": 172.1,
       "avg_request_tps": 43.8,
       "avg_latency_s": null,
       "p50_latency_s": 3.75,
-      "p95_latency_s": 3.78,
+      "p90_latency_s": 3.78,
+      "p95_latency_s": null,
       "max_latency_s": null,
       "p50_ttft_ms": 99.0,
       "p95_ttft_ms": null,
@@ -153,18 +114,19 @@
     },
     {
       "concurrency": 8,
-      "requests_per_worker": 20,
+      "requests_per_worker": null,
       "total_requests": 20,
-      "success_count": 20,
-      "failure_count": 0,
-      "success_rate": 1.0,
+      "success_count": null,
+      "failure_count": null,
+      "success_rate": null,
       "wall_s": null,
       "qps": 1.61,
       "aggregate_tps": 261.1,
       "avg_request_tps": 39.7,
       "avg_latency_s": null,
       "p50_latency_s": 4.16,
-      "p95_latency_s": 4.23,
+      "p90_latency_s": 4.23,
+      "p95_latency_s": null,
       "max_latency_s": null,
       "p50_ttft_ms": 130.0,
       "p95_ttft_ms": null,
@@ -174,18 +136,19 @@
     },
     {
       "concurrency": 16,
-      "requests_per_worker": 20,
+      "requests_per_worker": null,
       "total_requests": 20,
-      "success_count": 20,
-      "failure_count": 0,
-      "success_rate": 1.0,
+      "success_count": null,
+      "failure_count": null,
+      "success_rate": null,
       "wall_s": null,
       "qps": 2.12,
       "aggregate_tps": 343.7,
       "avg_request_tps": 32.7,
       "avg_latency_s": null,
       "p50_latency_s": 5.35,
-      "p95_latency_s": 5.49,
+      "p90_latency_s": 5.49,
+      "p95_latency_s": null,
       "max_latency_s": null,
       "p50_ttft_ms": 195.0,
       "p95_ttft_ms": null,

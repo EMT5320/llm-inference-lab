@@ -42,6 +42,7 @@ def collect_leaderboard_rows(records: list[dict[str, Any]]) -> list[dict[str, An
                     "aggregate_tps": round_row.get("aggregate_tps"),
                     "qps": round_row.get("qps"),
                     "p50_latency_s": round_row.get("p50_latency_s"),
+                    "p90_latency_s": round_row.get("p90_latency_s"),
                     "p95_latency_s": round_row.get("p95_latency_s"),
                     "p50_ttft_ms": round_row.get("p50_ttft_ms"),
                     "p95_ttft_ms": round_row.get("p95_ttft_ms"),
@@ -61,20 +62,21 @@ def render_leaderboard(records: list[dict[str, Any]], *, pending_models: list[st
         "# Inference Leaderboard",
         "",
         "- Claim boundary: `historical/imported` rows come from imported artifacts; `live/rerun` rows come from current `illab-bench` reruns; `pending/owner-rerun` rows carry no numeric claim.",
-        "- Four-axis scope: throughput (`agg_tps`, `qps`), latency (`p50/p95`, `TTFT`), memory/hardware (`hardware/telemetry`), and concurrency success (`success_rate`).",
+        "- Four-axis scope: throughput (`agg_tps`, `qps`, `token_count_coverage`), latency (`p50/p90/p95`, `TTFT`), memory/hardware (`hardware/telemetry`), and concurrency success (`success_rate`).",
         "",
-        "| model | evidence | concurrency | agg_tps | qps | p50_lat | p95_lat | p50_ttft | success | hardware/telemetry | notes |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|",
+        "| model | evidence | concurrency | agg_tps | qps | p50_lat | p90_lat | p95_lat | p50_ttft | success | hardware/telemetry | notes |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---|",
     ]
     for row in rows:
         lines.append(
-            "| {model} | {evidence} | {concurrency} | {agg} | {qps} | {p50} | {p95} | {ttft} | {success} | {hardware} | {notes} |".format(
+            "| {model} | {evidence} | {concurrency} | {agg} | {qps} | {p50} | {p90} | {p95} | {ttft} | {success} | {hardware} | {notes} |".format(
                 model=row["model"],
                 evidence=_format_evidence(row),
                 concurrency=row.get("concurrency", "n/a"),
                 agg=_fmt_num(row.get("aggregate_tps")),
                 qps=_fmt_num(row.get("qps")),
                 p50=_fmt_latency(row.get("p50_latency_s")),
+                p90=_fmt_latency(row.get("p90_latency_s")),
                 p95=_fmt_latency(row.get("p95_latency_s")),
                 ttft=_fmt_ms(row.get("p50_ttft_ms")),
                 success=_fmt_pct(row.get("success_rate")),
@@ -84,7 +86,7 @@ def render_leaderboard(records: list[dict[str, Any]], *, pending_models: list[st
         )
     for model in pending_models or []:
         lines.append(
-            f"| {model} | {PENDING_OWNER_RERUN} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | {PENDING_OWNER_RERUN} | owner rerun required; no numeric claim |"
+            f"| {model} | {PENDING_OWNER_RERUN} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | {PENDING_OWNER_RERUN} | owner rerun required; no numeric claim |"
         )
     lines.append("")
     return "\n".join(lines)

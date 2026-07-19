@@ -109,7 +109,7 @@ async def run_benchmark(
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "git_sha": _git_sha(),
         },
-        "details_path": str(details_path) if details_path else None,
+        "details_path": _portable_details_path(details_path, details_dir),
     }
 
 
@@ -204,6 +204,18 @@ def _default_hardware_label(endpoint_id: str, model: str) -> str:
     if endpoint_id == "mock_local" or model == "mock-model":
         return "CPU mock; no GPU telemetry"
     return "pending/owner-rerun"
+
+
+def _portable_details_path(path: Path | None, base_dir: Path | None) -> str | None:
+    """Serialize detail artifacts without leaking a machine-specific absolute path."""
+    if path is None or base_dir is None:
+        return None
+    repo_root = Path(__file__).resolve().parents[3]
+    try:
+        return path.resolve().relative_to(repo_root).as_posix()
+    except ValueError:
+        relative_artifact = path.resolve().relative_to(base_dir.resolve())
+        return (Path(base_dir.name) / relative_artifact).as_posix()
 
 
 def _git_sha() -> str | None:

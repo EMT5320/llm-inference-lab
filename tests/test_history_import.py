@@ -15,7 +15,15 @@ def test_import_gemma4_markdown_extracts_concurrency_rows() -> None:
     assert payload["model"] == "google/gemma-4-26B-A4B-it"
     assert payload["evidence_class"] == "historical/imported"
     assert payload["test_date"] == "2026-04-13"
-    assert len(payload["rounds"]) >= 3
+    assert [row["concurrency"] for row in payload["rounds"]] == [1, 4, 16]
+    assert len(payload["single_request_rows"]) == 2
+    assert len(payload["output_length_rows"]) == 2
+    assert payload["single_request_rows"][0]["raw"].startswith("短中文问答")
+    assert payload["output_length_rows"][0]["raw"].startswith("64")
     peak = max(payload["rounds"], key=lambda row: row["concurrency"])
     assert peak["concurrency"] == 16
     assert peak["aggregate_tps"] == pytest.approx(343.7)
+    assert peak["p90_latency_s"] == pytest.approx(5.49)
+    assert peak["p95_latency_s"] is None
+    assert peak["success_count"] is None
+    assert peak["success_rate"] is None

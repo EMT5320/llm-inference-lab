@@ -51,5 +51,10 @@ def test_bench_against_mock_server(tmp_path: Path) -> None:
     assert payload["schema_version"] == "bench-run-v0.1"
     assert len(payload["rounds"]) == 2
     assert all(row["success_rate"] == 1.0 for row in payload["rounds"])
+    assert all(row["token_count_coverage"] == 1.0 for row in payload["rounds"])
+    assert all(row["aggregate_tps"] > 0 for row in payload["rounds"])
     assert payload["rounds"][0]["p50_ttft_ms"] is not None
+    assert payload["details_path"] is not None
+    assert not Path(payload["details_path"]).is_absolute()
+    assert payload["details_path"].endswith("/details.jsonl")
     server.should_exit = True

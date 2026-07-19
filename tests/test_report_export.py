@@ -80,3 +80,35 @@ def test_leaderboard_separates_imported_live_and_pending_claims() -> None:
     assert "pending/owner-rerun" in markdown
     assert "4xA10-22GB; imported" in markdown
     assert "| owner-rerun-model | pending/owner-rerun | n/a |" in markdown
+
+
+def test_bench_markdown_keeps_missing_token_usage_as_na() -> None:
+    payload = {
+        "schema_version": "bench-run-v0.1",
+        "run_id": "run-without-usage",
+        "source": "live",
+        "endpoint_id": "usage-missing",
+        "model": "compatible-endpoint",
+        "stream": True,
+        "max_tokens": 32,
+        "rounds": [
+            {
+                "concurrency": 1,
+                "success_count": 1,
+                "total_requests": 1,
+                "success_rate": 1.0,
+                "qps": 1.25,
+                "aggregate_tps": None,
+                "token_count_coverage": 0.0,
+                "p50_latency_s": 0.8,
+                "p90_latency_s": 0.8,
+                "p95_latency_s": 0.8,
+                "p50_ttft_ms": 40.0,
+                "p95_ttft_ms": 40.0,
+            }
+        ],
+    }
+
+    markdown = render_bench_markdown(payload)
+
+    assert "| 1 | 1/1 | 100% | 1.25 | n/a | 0% |" in markdown

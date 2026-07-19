@@ -50,6 +50,8 @@ async def post_chat_completion(
         "temperature": temperature,
         "stream": stream,
     }
+    if stream:
+        payload["stream_options"] = {"include_usage": True}
     if extra_body:
         payload.update(extra_body)
 
@@ -68,18 +70,18 @@ async def post_chat_completion(
             response.raise_for_status()
             data = response.json()
             usage = data.get("usage") or {}
-            completion_tokens = int(usage.get("completion_tokens") or 0)
-            prompt_tokens = int(usage.get("prompt_tokens") or 0)
-            if completion_tokens == 0:
-                text = str(data.get("choices", [{}])[0].get("message", {}).get("content") or "")
-                completion_tokens = max(1, len(text.split()))
+            completion_tokens = _optional_int(usage.get("completion_tokens"))
+            prompt_tokens = _optional_int(usage.get("prompt_tokens"))
             return {
                 "ok": True,
                 "latency_s": latency_s,
                 "ttft_s": latency_s,
                 "prompt_tokens": prompt_tokens,
                 "completion_tokens": completion_tokens,
-                "tps": (completion_tokens / latency_s) if latency_s > 0 else 0.0,
+                "tps": (completion_tokens / latency_s)
+                if completion_tokens is not None and latency_s > 0
+                else None,
+                "token_count_source": "server_usage" if completion_tokens is not None else "unavailable",
                 "status_code": response.status_code,
             }
     except httpx.HTTPStatusError as exc:
@@ -95,9 +97,10 @@ async def _post_stream(
     payload: dict[str, Any],
     started: float,
 ) -> dict[str, Any]:
-    """Stream chat completion and measure TTFT plus total latency."""
+    """Stream chat completion and measure TTFT plus server-reported token usage."""
     ttft_s: float | None = None
-    completion_tokens = 0
+    completion_tokens: int | None = None
+    prompt_tokens: int | None = None
     async with client.stream("POST", url, headers=headers, json=payload) as response:
         response.raise_for_status()
         async for line in response.aiter_lines():
@@ -107,26 +110,47 @@ async def _post_stream(
             if chunk == "[DONE]":
                 break
             data = json.loads(chunk)
-            delta = data.get("choices", [{}])[0].get("delta", {})
-            content = delta.get("content")
-            if content:
-                if ttft_s is None:
-                    ttft_s = time.perf_counter() - started
-                completion_tokens += max(1, len(str(content).split()))
+            usage = data.get("usage")
+            if isinstance(usage, dict):
+                usage_completion_tokens = _optional_int(usage.get("completion_tokens"))
+                usage_prompt_tokens = _optional_int(usage.get("prompt_tokens"))
+                if usage_completion_tokens is not None:
+                    completion_tokens = usage_completion_tokens
+                if usage_prompt_tokens is not None:
+                    prompt_tokens = usage_prompt_tokens
+
+            choices = data.get("choices") or []
+            if not choices:
+                continue
+            delta = choices[0].get("delta", {})
+            if delta.get("content") and ttft_s is None:
+                ttft_s = time.perf_counter() - started
+
     latency_s = time.perf_counter() - started
     if ttft_s is None:
         ttft_s = latency_s
-    if completion_tokens == 0:
-        completion_tokens = 1
     return {
         "ok": True,
         "latency_s": latency_s,
         "ttft_s": ttft_s,
-        "prompt_tokens": 0,
+        "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,
-        "tps": (completion_tokens / latency_s) if latency_s > 0 else 0.0,
-        "status_code": 200,
+        "tps": (completion_tokens / latency_s)
+        if completion_tokens is not None and latency_s > 0
+        else None,
+        "token_count_source": "server_usage" if completion_tokens is not None else "unavailable",
+        "status_code": response.status_code,
     }
+
+
+def _optional_int(value: Any) -> int | None:
+    """Return an integer usage value without inventing a token count."""
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _error_result(started: float, *, status_code: int | None, error: str) -> dict[str, Any]:

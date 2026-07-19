@@ -25,10 +25,17 @@ def aggregate_round(results: list[dict[str, Any]], *, concurrency: int, requests
     failures = [item for item in results if not item.get("ok")]
     latencies = sorted(float(item["latency_s"]) for item in successes)
     ttfts = sorted(float(item["ttft_s"]) for item in successes if item.get("ttft_s") is not None)
-    total_completion_tokens = sum(int(item.get("completion_tokens") or 0) for item in successes)
-    total_prompt_tokens = sum(int(item.get("prompt_tokens") or 0) for item in successes)
     total_requests = len(results)
     success_count = len(successes)
+    token_accounted = [item for item in successes if item.get("completion_tokens") is not None]
+    prompt_accounted = [item for item in successes if item.get("prompt_tokens") is not None]
+    token_metrics_complete = success_count > 0 and len(token_accounted) == success_count
+    prompt_metrics_complete = success_count > 0 and len(prompt_accounted) == success_count
+    total_completion_tokens = (
+        sum(int(item["completion_tokens"]) for item in token_accounted) if token_metrics_complete else None
+    )
+    total_prompt_tokens = sum(int(item["prompt_tokens"]) for item in prompt_accounted) if prompt_metrics_complete else None
+    request_tps = [float(item["tps"]) for item in successes if item.get("tps") is not None]
 
     return {
         "concurrency": concurrency,
@@ -39,10 +46,16 @@ def aggregate_round(results: list[dict[str, Any]], *, concurrency: int, requests
         "success_rate": (success_count / total_requests) if total_requests else 0.0,
         "wall_s": wall_s,
         "qps": (success_count / wall_s) if wall_s > 0 else 0.0,
-        "aggregate_tps": (total_completion_tokens / wall_s) if wall_s > 0 else 0.0,
-        "avg_request_tps": statistics.mean(float(item["tps"]) for item in successes) if successes else 0.0,
+        "aggregate_tps": (total_completion_tokens / wall_s)
+        if total_completion_tokens is not None and wall_s > 0
+        else None,
+        "avg_request_tps": statistics.mean(request_tps)
+        if token_metrics_complete and len(request_tps) == success_count
+        else None,
+        "token_count_coverage": (len(token_accounted) / success_count) if success_count else 0.0,
         "avg_latency_s": statistics.mean(latencies) if latencies else 0.0,
         "p50_latency_s": percentile(latencies, 0.50),
+        "p90_latency_s": percentile(latencies, 0.90),
         "p95_latency_s": percentile(latencies, 0.95),
         "max_latency_s": max(latencies) if latencies else 0.0,
         "p50_ttft_ms": percentile(ttfts, 0.50) * 1000 if ttfts else None,
