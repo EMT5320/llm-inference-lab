@@ -25,7 +25,7 @@ measurement, history importer, telemetry seam, and evidence-class leaderboard.*
 |---|---|---|
 | `historical/imported` | Gemma4 4×A10 · c=1/2/4/8/16 · peak 343.7 tok/s | retained 4×A10 benchmark snapshot |
 | `live/rerun` | CPU mock · QPS / usage TPS / P50/P90/P95 / TTFT | runner + metrics contract verification |
-| `pending/owner-rerun` | 7B / 14B / 26B-MoE endpoint templates | ready-to-run endpoint matrix |
+| `pending/rerun` | 7B / 14B / 26B-MoE endpoint templates | ready-to-run endpoint matrix |
 
 > 343.7 tok/s 峰值是 `historical/imported` 证据，来自保留的 Gemma4 26B-A4B 4×A10 artifact；CPU mock 提供 runner 与指标契约验证。历史导入、实时复跑与待复跑模板严格分账。
 
@@ -37,11 +37,10 @@ measurement, history importer, telemetry seam, and evidence-class leaderboard.*
 - Concurrent measurements for QPS, usage-backed aggregate TPS, P50/P90/P95, and streaming TTFT.
 - JSON provenance attached to historical imports and current runs.
 - Markdown leaderboard export that keeps evidence classes separate.
-- Optional GPU telemetry seam for an explicitly authorized owner rerun.
+- Optional GPU telemetry seam for a planned GPU rerun.
 
-这是 Agent/评测系统内 endpoint 选型的 LLMOps 邻接证据，覆盖注册、压测与
-evidence 分账。调度器、Kubernetes 栈、监控看板与生产 serving 平台的边界见
-[Limitations](#limitations)。
+本仓用于 OpenAI-compatible endpoint 的选型、容量评估与性能回归。
+具体覆盖 endpoint 注册、并发压测、telemetry 接缝与 evidence-class 分账。
 
 ## Install
 
@@ -83,7 +82,7 @@ Or run the bundled demo:
 
 ## Key results (from archived A10 runs)
 
-Historical Gemma4 26B-A4B on 4×A10 (imported from a retained owner benchmark note):
+Historical Gemma4 26B-A4B on 4×A10 (imported from a retained benchmark artifact):
 
 - Peak aggregate throughput: **343.7 tok/s** at concurrency 16
 - Output-length sweep: **63.0–66.9 tok/s** with **23–30ms TTFT**; retained single-request scenarios span **39–92 tok/s**
@@ -98,9 +97,9 @@ Leaderboard rows use explicit evidence labels:
 |---|---|---|
 | `historical/imported` | Imported from retained benchmark artifacts | Useful for interview discussion, not a current live rerun |
 | `live/rerun` | Produced by current `illab-bench` execution | May be used as live runner evidence for that endpoint and environment |
-| `pending/owner-rerun` | Template or model awaiting owner GPU rerun | No numeric throughput / latency claim |
+| `pending/rerun` | Template or model awaiting a planned GPU rerun | No numeric throughput / latency claim |
 
-Reports summarize four axes: throughput (`qps`, usage-backed `aggregate_tps`, `token_count_coverage`), latency (`P50/P90/P95`, TTFT), memory/hardware (`hardware`, `gpu_telemetry`), and concurrency success (`success_count`, `success_rate`). Historical rows keep their imported hardware note; live GPU memory / power telemetry should be attached only after an owner rerun.
+Reports summarize four axes: throughput (`qps`, usage-backed `aggregate_tps`, `token_count_coverage`), latency (`P50/P90/P95`, TTFT), memory/hardware (`hardware`, `gpu_telemetry`), and concurrency success (`success_count`, `success_rate`). Historical rows keep their imported hardware note; live GPU memory / power telemetry should be attached only after the planned GPU rerun.
 
 ## Endpoint registry
 
@@ -112,14 +111,14 @@ Example registry: [`config/endpoints.example.json`](config/endpoints.example.jso
 | `coach_sft_7b` | SFT | `ILL_SFT_7B_*` |
 | `coach_dpo_7b` | DPO | `ILL_DPO_7B_*` |
 | `frontier_teacher` | frontier | `ILL_FRONTIER_*` |
-| `vllm_7b_a10_template` | owner rerun template | `ILL_VLLM_7B_*` |
-| `vllm_14b_a10_template` | owner rerun template | `ILL_VLLM_14B_*` |
-| `vllm_26b_moe_a10_template` | owner rerun template | `ILL_VLLM_26B_MOE_*` |
+| `vllm_7b_a10_template` | planned GPU rerun template | `ILL_VLLM_7B_*` |
+| `vllm_14b_a10_template` | planned GPU rerun template | `ILL_VLLM_14B_*` |
+| `vllm_26b_moe_a10_template` | planned GPU rerun template | `ILL_VLLM_26B_MOE_*` |
 | `mock_local` | CPU smoke | built-in `127.0.0.1:18080` |
 
 Field layout mirrors AlgoCoach `config/endpoint_registry.phase_b.json` but uses `ILL_*` env vars and drops coaching-specific local rule rows.
 
-## vLLM Owner Rerun Recipe
+## vLLM Planned GPU Rerun Recipe
 
 The template endpoints in `config/endpoints.example.json` document suggested A10 reruns without claiming they have been executed. Adjust model paths, ports, tensor parallel size, and context length to the actual server.
 
@@ -154,7 +153,7 @@ illab-bench --registry config/endpoints.example.json --endpoint vllm_7b_a10_temp
 illab-leaderboard --output reports/eval/inference_leaderboard_latest.md
 ```
 
-For 14B and 26B MoE, use `vllm_14b_a10_template` and `vllm_26b_moe_a10_template`; the registry records suggested tensor parallel and concurrency levels. Treat all template rows as `pending/owner-rerun` until the JSON report and telemetry artifact exist.
+For 14B and 26B MoE, use `vllm_14b_a10_template` and `vllm_26b_moe_a10_template`; the registry records suggested tensor parallel and concurrency levels. Treat all template rows as `pending/rerun` until the JSON report and telemetry artifact exist.
 
 ## CLI
 
@@ -165,7 +164,7 @@ For 14B and 26B MoE, use `vllm_14b_a10_template` and `vllm_26b_moe_a10_template`
 | `illab-bench` | Run benchmark against registry endpoint or `--base-url` |
 | `illab-import-history` | Import Gemma4 markdown / qwopus JSON |
 | `illab-leaderboard` | Merge history + live runs into Markdown |
-| `python scripts/sample_nvidia_smi.py` | Optional no-dependency GPU telemetry sampler for owner reruns |
+| `python scripts/sample_nvidia_smi.py` | Optional no-dependency GPU telemetry sampler for planned GPU reruns |
 
 ## Artifact layout
 
@@ -175,10 +174,7 @@ For 14B and 26B MoE, use `vllm_14b_a10_template` and `vllm_26b_moe_a10_template`
 
 ## Limitations
 
-- No Web UI, scheduler, or monitoring dashboard
-- TTFT requires streaming; non-streaming endpoints report TTFT ≈ total latency
-- Qwopus35 historical JSON is not archived yet; leaderboard shows a pending row until GPU rerun
-- Does not bundle vLLM/torch; point registry env vars at your existing servers
+当前范围聚焦 benchmark runner、telemetry seam 与 evidence-class leaderboard；调度、集群编排和监控平台不在本仓范围内。
 
 ## Tests
 

@@ -73,13 +73,41 @@ def test_leaderboard_separates_imported_live_and_pending_claims() -> None:
         },
     ]
 
-    markdown = render_leaderboard(records, pending_models=["owner-rerun-model"])
+    markdown = render_leaderboard(records, pending_models=["planned-gpu-rerun-model"])
 
     assert "historical/imported/2026-04-13" in markdown
     assert "live/rerun" in markdown
-    assert "pending/owner-rerun" in markdown
+    assert "pending/rerun" in markdown
     assert "4xA10-22GB; imported" in markdown
-    assert "| owner-rerun-model | pending/owner-rerun | n/a |" in markdown
+    assert "| planned-gpu-rerun-model | pending/rerun | n/a |" in markdown
+    assert "owner rerun" not in markdown.lower()
+
+
+def test_legacy_pending_evidence_is_normalized_without_live_upgrade() -> None:
+    payload = {
+        "evidence_class": "pending/owner-rerun",
+        "endpoint_id": "legacy-pending",
+        "model": "legacy-pending-model",
+        "rounds": [
+            {
+                "concurrency": 1,
+                "aggregate_tps": None,
+                "qps": None,
+                "p50_latency_s": None,
+                "p90_latency_s": None,
+                "p95_latency_s": None,
+                "p50_ttft_ms": None,
+                "success_rate": None,
+            }
+        ],
+    }
+
+    report = render_bench_markdown(payload)
+    leaderboard = render_leaderboard([payload])
+
+    assert "evidence_class: `pending/rerun`" in report
+    assert "| legacy-pending-model | pending/rerun |" in leaderboard
+    assert "| legacy-pending-model | live/rerun |" not in leaderboard
 
 
 def test_bench_markdown_keeps_missing_token_usage_as_na() -> None:

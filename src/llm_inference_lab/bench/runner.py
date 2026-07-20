@@ -94,8 +94,8 @@ async def run_benchmark(
         "base_url": base_url,
         "hardware": _default_hardware_label(endpoint_id, model),
         "gpu_telemetry": {
-            "status": "pending/owner-rerun",
-            "note": "Run scripts/sample_nvidia_smi.py during the owner GPU rerun to attach live telemetry.",
+            "status": "pending/rerun",
+            "note": "Run scripts/sample_nvidia_smi.py during the planned GPU rerun to attach live telemetry.",
         },
         "prompt": prompt,
         "max_tokens": max_tokens,
@@ -203,7 +203,7 @@ def _append_details(path: Path, results: list[dict[str, Any]]) -> None:
 def _default_hardware_label(endpoint_id: str, model: str) -> str:
     if endpoint_id == "mock_local" or model == "mock-model":
         return "CPU mock; no GPU telemetry"
-    return "pending/owner-rerun"
+    return "pending/rerun"
 
 
 def _portable_details_path(path: Path | None, base_dir: Path | None) -> str | None:

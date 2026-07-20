@@ -13,7 +13,7 @@
     },
     {
       "endpoint_id": "vllm_7b_a10_template",
-      "label": "vLLM 7B A10 owner-rerun template",
+      "label": "vLLM 7B A10 planned GPU rerun template",
       "type": "vllm",
       "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
       "model_env": "ILL_VLLM_7B_MODEL",
@@ -23,7 +23,7 @@
       "max_tokens": 256,
       "temperature": 0.0,
       "enabled": true,
-      "hardware": "pending/owner-rerun",
+      "hardware": "pending/rerun",
       "recipe": {
         "port": 18087,
         "tensor_parallel_size": 1,
@@ -31,11 +31,11 @@
         "max_model_len": 32768,
         "benchmark_concurrency": "1,4,8,16"
       },
-      "notes": "Template only; attach live A10 telemetry during owner rerun."
+      "notes": "Template only; attach live A10 telemetry during the planned GPU rerun."
     },
     {
       "endpoint_id": "vllm_14b_a10_template",
-      "label": "vLLM 14B A10 owner-rerun template",
+      "label": "vLLM 14B A10 planned GPU rerun template",
       "type": "vllm",
       "model": "Qwen/Qwen2.5-14B-Instruct",
       "model_env": "ILL_VLLM_14B_MODEL",
@@ -45,7 +45,7 @@
       "max_tokens": 256,
       "temperature": 0.0,
       "enabled": true,
-      "hardware": "pending/owner-rerun",
+      "hardware": "pending/rerun",
       "recipe": {
         "port": 18088,
         "tensor_parallel_size": 2,
@@ -57,7 +57,7 @@
     },
     {
       "endpoint_id": "vllm_26b_moe_a10_template",
-      "label": "vLLM 26B MoE A10 owner-rerun template",
+      "label": "vLLM 26B MoE A10 planned GPU rerun template",
       "type": "vllm",
       "model": "google/gemma-4-26B-A4B-it",
       "model_env": "ILL_VLLM_26B_MOE_MODEL",
@@ -67,7 +67,7 @@
       "max_tokens": 256,
       "temperature": 0.0,
       "enabled": true,
-      "hardware": "pending/owner-rerun",
+      "hardware": "pending/rerun",
       "recipe": {
         "port": 18089,
         "tensor_parallel_size": 4,

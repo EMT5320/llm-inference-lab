@@ -8,8 +8,8 @@
   "base_url": "http://127.0.0.1:18080/v1",
   "hardware": "CPU mock; no GPU telemetry",
   "gpu_telemetry": {
-    "status": "pending/owner-rerun",
-    "note": "Run scripts/sample_nvidia_smi.py during the owner GPU rerun to attach live telemetry."
+    "status": "pending/rerun",
+    "note": "Run scripts/sample_nvidia_smi.py during the planned GPU rerun to attach live telemetry."
   },
   "prompt": "You are being benchmarked for concise structured reasoning. Summarize the trade-offs of using tensor parallelism for inference in 6 bullet points, then end with a one-sentence recommendation.",
   "max_tokens": 64,

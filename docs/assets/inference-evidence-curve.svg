@@ -42,7 +42,7 @@
     <text x="814" y="302" fill="#182126" font-size="17" font-weight="700">live / rerun</text>
     <text x="814" y="327" fill="#5f5a51" font-size="13">Current runner + endpoint evidence</text>
     <line x1="814" y1="347" x2="1124" y2="347" stroke="#d0c8b9"/>
-    <text x="814" y="385" fill="#182126" font-size="17" font-weight="700">pending / owner-rerun</text>
+    <text x="814" y="385" fill="#182126" font-size="17" font-weight="700">pending / rerun</text>
     <text x="814" y="410" fill="#5f5a51" font-size="13">Template only; carries no numeric claim</text>
     <text x="814" y="450" fill="#8b4c34" font-size="13" font-weight="700">CPU mock validates the runner,</text>
     <text x="814" y="470" fill="#8b4c34" font-size="13" font-weight="700">not model-serving performance.</text>

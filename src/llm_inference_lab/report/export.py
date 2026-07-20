@@ -6,9 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-HISTORICAL_IMPORTED = "historical/imported"
-LIVE_RERUN = "live/rerun"
-PENDING_OWNER_RERUN = "pending/owner-rerun"
+from .evidence import HISTORICAL_IMPORTED, PENDING_RERUN, normalize_evidence_class
 
 
 def write_json_report(payload: dict[str, Any], path: Path) -> None:
@@ -19,7 +17,7 @@ def write_json_report(payload: dict[str, Any], path: Path) -> None:
 
 def render_bench_markdown(payload: dict[str, Any]) -> str:
     """Render one benchmark run as markdown."""
-    evidence_class = _evidence_class(payload)
+    evidence_class = normalize_evidence_class(payload)
     hardware = _hardware_label(payload)
     lines = [
         f"# Inference Benchmark Report — {payload.get('endpoint_id', 'unknown')}",
@@ -114,19 +112,6 @@ def _fmt_pct(value: Any) -> str:
     return f"{number:.0f}%"
 
 
-def _evidence_class(payload: dict[str, Any]) -> str:
-    evidence_class = str(payload.get("evidence_class") or "").strip().lower()
-    if evidence_class in {HISTORICAL_IMPORTED, LIVE_RERUN, PENDING_OWNER_RERUN}:
-        return evidence_class
-
-    source = str(payload.get("source") or "live").strip().lower()
-    if source in {"history", "historical", "imported"}:
-        return HISTORICAL_IMPORTED
-    if source == "pending":
-        return PENDING_OWNER_RERUN
-    return LIVE_RERUN
-
-
 def _hardware_label(payload: dict[str, Any]) -> str:
     hardware = payload.get("hardware") or payload.get("hardware_profile")
     telemetry = payload.get("gpu_telemetry") or payload.get("telemetry") or {}
@@ -140,9 +125,9 @@ def _hardware_label(payload: dict[str, Any]) -> str:
         label = str(hardware)
         if telemetry_status:
             return f"{label}; telemetry {telemetry_status}"
-        if _evidence_class(payload) == HISTORICAL_IMPORTED:
+        if normalize_evidence_class(payload) == HISTORICAL_IMPORTED:
             return f"{label}; imported"
         return label
     if str(payload.get("endpoint_id") or "") == "mock_local" or str(payload.get("model") or "") == "mock-model":
         return "CPU mock; no GPU telemetry"
-    return PENDING_OWNER_RERUN
+    return PENDING_RERUN

@@ -6,9 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-HISTORICAL_IMPORTED = "historical/imported"
-LIVE_RERUN = "live/rerun"
-PENDING_OWNER_RERUN = "pending/owner-rerun"
+from .evidence import HISTORICAL_IMPORTED, LIVE_RERUN, PENDING_RERUN, normalize_evidence_class
 
 
 def load_records(paths: list[Path]) -> list[dict[str, Any]]:
@@ -26,7 +24,7 @@ def collect_leaderboard_rows(records: list[dict[str, Any]]) -> list[dict[str, An
     rows: list[dict[str, Any]] = []
     for record in records:
         model = str(record.get("model") or "unknown")
-        evidence_class = _evidence_class(record)
+        evidence_class = normalize_evidence_class(record)
         endpoint_id = str(record.get("endpoint_id") or "unknown")
         test_date = record.get("test_date") or record.get("provenance", {}).get("timestamp_utc", "n/a")
         notes = str(record.get("notes") or "")
@@ -61,7 +59,7 @@ def render_leaderboard(records: list[dict[str, Any]], *, pending_models: list[st
     lines = [
         "# Inference Leaderboard",
         "",
-        "- Claim boundary: `historical/imported` rows come from imported artifacts; `live/rerun` rows come from current `illab-bench` reruns; `pending/owner-rerun` rows carry no numeric claim.",
+        "- Claim boundary: `historical/imported` rows come from imported artifacts; `live/rerun` rows come from current `illab-bench` reruns; `pending/rerun` rows carry no numeric claim.",
         "- Four-axis scope: throughput (`agg_tps`, `qps`, `token_count_coverage`), latency (`p50/p90/p95`, `TTFT`), memory/hardware (`hardware/telemetry`), and concurrency success (`success_rate`).",
         "",
         "| model | evidence | concurrency | agg_tps | qps | p50_lat | p90_lat | p95_lat | p50_ttft | success | hardware/telemetry | notes |",
@@ -80,13 +78,13 @@ def render_leaderboard(records: list[dict[str, Any]], *, pending_models: list[st
                 p95=_fmt_latency(row.get("p95_latency_s")),
                 ttft=_fmt_ms(row.get("p50_ttft_ms")),
                 success=_fmt_pct(row.get("success_rate")),
-                hardware=(row.get("hardware") or PENDING_OWNER_RERUN)[:80],
+                hardware=(row.get("hardware") or PENDING_RERUN)[:80],
                 notes=(row.get("notes") or "")[:80],
             )
         )
     for model in pending_models or []:
         lines.append(
-            f"| {model} | {PENDING_OWNER_RERUN} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | {PENDING_OWNER_RERUN} | owner rerun required; no numeric claim |"
+            f"| {model} | {PENDING_RERUN} | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | {PENDING_RERUN} | planned GPU rerun; no numeric claim |"
         )
     lines.append("")
     return "\n".join(lines)
@@ -117,19 +115,6 @@ def _format_evidence(row: dict[str, Any]) -> str:
     return evidence_class
 
 
-def _evidence_class(record: dict[str, Any]) -> str:
-    evidence_class = str(record.get("evidence_class") or "").strip().lower()
-    if evidence_class in {HISTORICAL_IMPORTED, LIVE_RERUN, PENDING_OWNER_RERUN}:
-        return evidence_class
-
-    source = str(record.get("source") or "live").strip().lower()
-    if source in {"history", "historical", "imported"}:
-        return HISTORICAL_IMPORTED
-    if source == "pending":
-        return PENDING_OWNER_RERUN
-    return LIVE_RERUN
-
-
 def _hardware_label(record: dict[str, Any]) -> str:
     hardware = record.get("hardware") or record.get("hardware_profile")
     telemetry = record.get("gpu_telemetry") or record.get("telemetry") or {}
@@ -143,12 +128,12 @@ def _hardware_label(record: dict[str, Any]) -> str:
         label = str(hardware)
         if telemetry_status:
             return f"{label}; telemetry {telemetry_status}"
-        if _evidence_class(record) == HISTORICAL_IMPORTED:
+        if normalize_evidence_class(record) == HISTORICAL_IMPORTED:
             return f"{label}; imported"
         return label
     if str(record.get("endpoint_id") or "") == "mock_local" or str(record.get("model") or "") == "mock-model":
         return "CPU mock; no GPU telemetry"
-    return PENDING_OWNER_RERUN
+    return PENDING_RERUN
 
 
 def _fmt_num(value: Any) -> str:

@@ -15,7 +15,7 @@
 |---|---|---|
 | throughput | `qps`, `aggregate_tps`, `token_count_coverage` | token TPS requires complete server usage |
 | latency | `p50/p90/p95_latency_s`, `p50/p95_ttft_ms` | measured per concurrency round |
-| memory/hardware | `hardware`, `gpu_telemetry` | CPU mock; no GPU telemetry; telemetry pending/owner-rerun |
+| memory/hardware | `hardware`, `gpu_telemetry` | CPU mock; no GPU telemetry; telemetry pending/rerun |
 | concurrency success | `success_count`, `total_requests`, `success_rate` | measured per concurrency round |
 
 ## Rounds
